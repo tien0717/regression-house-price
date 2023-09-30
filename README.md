@@ -1,5 +1,5 @@
 # regression-house-price
-![01](images\01.png")
+![01](diagrams\01.png")
 
 
 
