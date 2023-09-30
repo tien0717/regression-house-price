@@ -5,9 +5,8 @@
 
 
 ## 程式方塊圖與寫法
-### 1.資料前處理
 
-#### A.列出所有特徵值、找出每個特徵值有哪些類別，以及有沒有NAN值和缺失值
+### A.列出所有特徵值、找出每個特徵值有哪些類別，以及有沒有NAN值和缺失值
 ```python
 columns = train.columns.tolist
 print(columns)
@@ -18,7 +17,7 @@ def feature_unfo(feature):
     print('有幾個NAN值:' , feature.isna().sum())
     print('是否存在缺失值' , feature.isnull().any())
 ```
-#### B.將原始資料的"id"columns刪除
+### B.將原始資料的"id"columns刪除
 ```python
 train1 =train.drop(['id'],axis="columns")
 valid1 =valid.drop(['id'],axis="columns")
@@ -156,8 +155,8 @@ Best Parameters: {'gpu_id': 0, 'learning_rate': 0.03, 'max_depth': 6, 'min_child
 ### G.將y_pred的值進行反轉換，並保存在excel文件
 ```python
 
-lambda_value = 0  # 用于Box-Cox转换的lambda值，这里是0
-# 执行反转换
+lambda_value = 0  
+# 執行反轉換
 original_values = np.exp(y_pred) - 1 
 
 # 創建一個包含預測結果的DataFrame
@@ -168,42 +167,28 @@ result_df.to_excel('/content/drive/MyDrive/ML2023/hw1/predicted_results.xlsx', i
 
 
 
-##畫圖做結果分析
-計算每個特徵值和price的相關度
+## 畫圖做結果分析
+計算每個特徵值和price的相關度，並使用熱圖 (heatmap) 來視覺化各個特徵與目標變數之間的相關性
 
 ```python
-for column in train1.columns:
-    if column != "price":
-        correlation = train1[column].corr(train1['price'], method='pearson')
-        print(f"Column '{column}': Correlation with 'price' = {correlation}")
+# 計算所有特徵與 'price' 之間的相關性
+correlations = train1.drop("price", axis=1).corrwith(train1['price'])
+
+# 創建一個熱圖
+plt.figure(figsize=(10, 8))
+sns.heatmap(correlations.to_frame(), annot=True, cmap='coolwarm', cbar=True, square=True)
+plt.title('Correlation Heatmap')
+plt.show()
 ```
-Column 'sale_yr': Correlation with 'price' = 0.005002905194955353
-Column 'sale_month': Correlation with 'price' = -0.025304325881938636
-Column 'sale_day': Correlation with 'price' = -0.009386573916056136
-Column 'bedrooms': Correlation with 'price' = 0.3522394422904958
-Column 'bathrooms': Correlation with 'price' = 0.5349755796605957
-Column 'sqft_living': Correlation with 'price' = 0.7041113617104482
-Column 'sqft_lot': Correlation with 'price' = 0.1724142296742318
-Column 'floors': Correlation with 'price' = 0.2802353530134101
-Column 'waterfront': Correlation with 'price' = 0.15756975922081673
-Column 'view': Correlation with 'price' = 0.3623045811094562
-Column 'condition': Correlation with 'price' = 0.047796845869225044
-Column 'grade': Correlation with 'price' = 0.6917980627537911
-Column 'sqft_above': Correlation with 'price' = 0.601480694391451
-Column 'sqft_basement': Correlation with 'price' = 0.30512980134572687
-Column 'yr_built': Correlation with 'price' = 0.07028314758353243
-Column 'yr_renovated': Correlation with 'price' = 0.11656252008676027
-Column 'zipcode': Correlation with 'price' = -0.04563041379140216
-Column 'lat': Correlation with 'price' = 0.40490080236150694
-Column 'long': Correlation with 'price' = 0.05312815537647061
-Column 'sqft_living15': Correlation with 'price' = 0.630299829649206
-Column 'sqft_lot15': Correlation with 'price' = 0.16571307052779796
+
+![01](diagrams/14.png)
 
 
 ## 討論預測值誤差很大的，是怎麼回事？
-1.模型的複雜度和特徵工程可能不足以捕捉到數據中的潛在變化和模式。這可能導致模型在預測時出現偏差
-2.數據質量可能是一個問題。低質量或不完整的數據集可能導致模型學習到不準確的模式，進而影響預測的準確性。如果數據中存在噪音或缺失值，這也可能導致預測誤差增大。
-3.模型的選擇和參數設定也可能影響預測的準確性。使用不適合特定任務的模型或不恰當的超參數設置可能導致誤差增大。
+1. 模型的複雜度和特徵工程可能不足以捕捉到數據中的潛在變化和模式。這可能導致模型在預測時出現偏差
+2. 數據質量可能是一個問題。低質量或不完整的數據集可能導致模型學習到不準確的模式，進而影響預測的準確性。
+3. 如果數據中存在噪音，也可能導致預測誤差增大。
+4. 模型的選擇和參數設定也可能影響預測的準確性。使用不適合特定任務的模型或不恰當的超參數設置可能導致誤差增大。
 
 
 ## 如何改進？
